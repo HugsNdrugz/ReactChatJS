@@ -11,10 +11,10 @@ def create_app():
     app = Flask(__name__)
     CORS(app)
 
-    # Configure the SQLAlchemy part of the app instance
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+    # Configure the SQLAlchemy part of the app instance using environment variables
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{os.environ['PGUSER']}:{os.environ['PGPASSWORD']}@{os.environ['PGHOST']}:{os.environ['PGPORT']}/{os.environ['PGDATABASE']}"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
+    app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'fallback_secret_key')
 
     # Initialize SQLAlchemy with the app
     db.init_app(app)
@@ -32,6 +32,9 @@ def create_app():
 
         # Register blueprints
         app.register_blueprint(routes.bp)
+
+        # Initialize the app (including creating full-text search index)
+        routes.init_app(app)
 
     return app
 

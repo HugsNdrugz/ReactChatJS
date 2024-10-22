@@ -1,0 +1,21 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "This project is a view-only Facebook Messenger clone using React.js for the frontend and Flask for the backend. It focuses on efficient SQL queries, elegant UI, and basic chat statistics visualization.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "chart.js": "^4.4.5",
+    "lodash": "^4.17.21",
+    "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.3.1",
+    "react-scripts": "^5.0.1"
+  }
+}

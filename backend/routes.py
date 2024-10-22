@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, render_template
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, text
 from datetime import datetime, timedelta
 from .app import db
 from .models import Contact, Message
@@ -31,11 +31,22 @@ def get_chat_history(contact_id):
     per_page = 50
     search_query = request.args.get('search', '')
 
-    messages = Message.query.filter(
-        ((Message.sender_id == contact_id) | (Message.receiver_id == contact_id)) &
-        Message.content.ilike(f'%{search_query}%')
-    ).order_by(Message.timestamp.desc()) \
-     .paginate(page=page, per_page=per_page, error_out=False)
+    # Create a full-text search query
+    search_vector = func.to_tsvector('english', Message.content)
+    search_query_tsquery = func.plainto_tsquery('english', search_query)
+
+    # Build the base query
+    base_query = Message.query.filter(
+        (Message.sender_id == contact_id) | (Message.receiver_id == contact_id)
+    )
+
+    # Apply search if a query is provided
+    if search_query:
+        base_query = base_query.filter(search_vector.match(search_query_tsquery))
+
+    # Order by timestamp and paginate
+    messages = base_query.order_by(Message.timestamp.desc()) \
+        .paginate(page=page, per_page=per_page, error_out=False)
 
     return jsonify({
         'messages': [message.to_dict() for message in messages.items],
@@ -57,3 +68,14 @@ def get_chat_statistics(contact_id):
      .order_by(func.date(Message.timestamp)).all()
 
     return jsonify([{'date': str(date), 'count': count} for date, count in daily_counts])
+
+def create_fulltext_search_index():
+    with db.engine.connect() as conn:
+        conn.execute(text("""
+            CREATE INDEX IF NOT EXISTS idx_message_content_fts ON message USING gin(to_tsvector('english', content));
+        """))
+        print("Full-text search index created successfully.")
+
+def init_app(app):
+    with app.app_context():
+        create_fulltext_search_index()
