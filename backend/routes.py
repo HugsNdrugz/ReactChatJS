@@ -1,10 +1,14 @@
-from flask import Blueprint, jsonify, request
-from sqlalchemy import func
+from flask import Blueprint, jsonify, request, render_template
+from sqlalchemy import func, or_
 from datetime import datetime, timedelta
 from .app import db
 from .models import Contact, Message
 
 bp = Blueprint('main', __name__)
+
+@bp.route('/')
+def index():
+    return render_template('index.html')
 
 @bp.route('/api/contacts')
 def get_contacts():
@@ -25,9 +29,11 @@ def get_contacts():
 def get_chat_history(contact_id):
     page = int(request.args.get('page', 1))
     per_page = 50
+    search_query = request.args.get('search', '')
 
     messages = Message.query.filter(
-        (Message.sender_id == contact_id) | (Message.receiver_id == contact_id)
+        (Message.sender_id == contact_id) | (Message.receiver_id == contact_id),
+        Message.content.ilike(f'%{search_query}%')
     ).order_by(Message.timestamp.desc()) \
      .paginate(page=page, per_page=per_page, error_out=False)
 
