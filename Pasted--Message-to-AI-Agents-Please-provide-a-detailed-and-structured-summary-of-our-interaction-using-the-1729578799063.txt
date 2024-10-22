@@ -1,0 +1,174 @@
+
+Message to AI Agents
+
+Please provide a detailed and structured summary of our interaction using the following sections. Adhere strictly to the format and guidelines below. Do not include any conversational language, additional explanations, or text outside the required structure.
+
+### Response Format: JSON
+
+### Sections and Required Fields:
+
+1. **Issues and Solutions**
+   - Issue
+   - Cause
+   - ProposedSolution
+   - FinalSolution
+   - Outcome
+   - LessonsLearned
+
+2. **Key Facts or Insights**
+   - FactInsight
+   - Context
+   - Application
+   - Impact
+   - SourceReference
+
+3. **Data Fields and Tables Discussed**
+   - DataFieldTableName
+   - TypeOfData
+   - PurposeUsage
+   - SourceOrigin
+   - Relevance
+   - ChallengesHandlingThisData
+
+4. **Challenges Encountered**
+   - Challenge
+   - ReasonContext
+   - Impact
+   - AttemptsToSolve
+   - FinalResolution
+   - RecommendationsForFuture
+
+5. **Recommended Next Steps and Future Improvements**
+   - NextStepImprovement
+   - ReasonForRecommendation
+   - PlanForImplementation
+   - ExpectedOutcome
+   - PotentialChallenges
+
+6. **Key Decisions Made**
+   - Decision
+   - Reasoning
+   - AlternativesConsidered
+   - Consequences
+   - Feedback
+
+7. **Bugs or Technical Issues**
+   - BugIssue
+   - LocationComponent
+   - Symptoms
+   - StepsToReproduce
+   - ProposedFixes
+   - FinalFixApplied
+   - PostFixTesting
+
+8. **Unresolved Issues and Open Questions**
+   - UnresolvedIssueQuestion
+   - WhyItsStillOpen
+   - PossibleSolutionsConsidered
+   - NextStepsToResolve
+   - ExpectedResolutionTimeframe
+
+9. **Miscellaneous Insights or Findings**
+   - InsightFinding
+   - Relevance
+   - Application
+   - FurtherActionRequired
+
+### Formatting Requirements:
+
+- **Format**: JSON only. Do not include any text before or after the JSON structure.
+- **Language**: Professional and objective language. Avoid conversational tone, filler words, or generic statements.
+- **Completeness**: Fully complete each field with detailed explanations. No fields should be left blank.
+- **Consistency**: Use the exact field names as listed above. Maintain uniform data types across responses.
+- **Placeholders**: Use `"N/A"` for any fields that are not applicable.
+
+### Example Response:
+
+```json
+{
+  "IssuesAndSolutions": {
+    "Issue": "Description of the problem.",
+    "Cause": "Root cause of the issue.",
+    "ProposedSolution": "Initial solution discussed.",
+    "FinalSolution": "Solution that was implemented.",
+    "Outcome": "Result of applying the solution.",
+    "LessonsLearned": "What was learned."
+  },
+  "KeyFactsOrInsights": {
+    "FactInsight": "Important fact or insight.",
+    "Context": "Context of the discussion.",
+    "Application": "How the fact/insight was used.",
+    "Impact": "Effect on decision-making or outcomes.",
+    "SourceReference": "Where the fact/insight came from."
+  },
+  "DataFieldsAndTablesDiscussed": {
+    "DataFieldTableName": "Name of the field/table.",
+    "TypeOfData": "Numeric, textual, etc.",
+    "PurposeUsage": "Purpose of the data field.",
+    "SourceOrigin": "Where the data came from.",
+    "Relevance": "Why the data is important.",
+    "ChallengesHandlingThisData": "Difficulties faced with the data."
+  },
+  "ChallengesEncountered": {
+    "Challenge": "Description of the challenge.",
+    "ReasonContext": "Why it was a problem.",
+    "Impact": "Effect on the project.",
+    "AttemptsToSolve": "What was done to solve it.",
+    "FinalResolution": "How it was resolved.",
+    "RecommendationsForFuture": "Suggestions for preventing or handling the issue in the future."
+  },
+  "RecommendedNextStepsAndFutureImprovements": {
+    "NextStepImprovement": "Suggested improvement.",
+    "ReasonForRecommendation": "Why it’s needed.",
+    "PlanForImplementation": "How to implement it.",
+    "ExpectedOutcome": "Expected benefits.",
+    "PotentialChallenges": "Potential problems during implementation."
+  },
+  "KeyDecisionsMade": {
+    "Decision": "What decision was made.",
+    "Reasoning": "Why the decision was made.",
+    "AlternativesConsidered": "Other options discussed.",
+    "Consequences": "Impact of the decision.",
+    "Feedback": "Any feedback after implementation."
+  },
+  "BugsOrTechnicalIssues": {
+    "BugIssue": "Description of the bug.",
+    "LocationComponent": "Where the bug occurred.",
+    "Symptoms": "Observed issues caused by the bug.",
+    "StepsToReproduce": "How to reproduce the bug.",
+    "ProposedFixes": "Possible fixes.",
+    "FinalFixApplied": "Solution that was implemented.",
+    "PostFixTesting": "Results after the fix was applied."
+  },
+  "UnresolvedIssuesAndOpenQuestions": {
+    "UnresolvedIssueQuestion": "Description of the unresolved issue.",
+    "WhyItsStillOpen": "Reason for not being resolved.",
+    "PossibleSolutionsConsidered": "Possible ideas to solve it.",
+    "NextStepsToResolve": "Plan to address it.",
+    "ExpectedResolutionTimeframe": "Estimated time for resolution."
+  },
+  "MiscellaneousInsightsOrFindings": {
+    "InsightFinding": "Other key insights.",
+    "Relevance": "Why it’s important.",
+    "Application": "How it could be used.",
+    "FurtherActionRequired": "Any follow-up needed."
+  }
+}
+
+Follow these instructions precisely to ensure a detailed, structured, and comprehensive response. Maintain consistency in the format and avoid conversational elements. Each field must be fully explained to allow for proper analysis later.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

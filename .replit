@@ -19,6 +19,18 @@ args = "Backend Server"
 task = "workflow.run"
 args = "Frontend Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Flask-Migrate Init"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Flask-Migrate Create Migration"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Flask-Migrate Upgrade"
+
 [[workflows.workflow]]
 name = "Backend Server"
 author = "agent"
@@ -41,7 +53,40 @@ agentRequireRestartOnSave = false
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd frontend && npm start"
-waitForPort = 3000
+waitForPort = 3001
+
+[[workflows.workflow]]
+name = "Flask-Migrate Init"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && flask db init"
+
+[[workflows.workflow]]
+name = "Flask-Migrate Create Migration"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && flask db migrate -m 'Add id column to chats table'"
+
+[[workflows.workflow]]
+name = "Flask-Migrate Upgrade"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && flask db upgrade"
 
 [deployment]
 run = ["sh", "-c", "python main.py"]
