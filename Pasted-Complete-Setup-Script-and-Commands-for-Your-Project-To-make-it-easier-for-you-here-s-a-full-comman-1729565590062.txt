@@ -1,0 +1,245 @@
+Complete Setup Script and Commands for Your Project
+
+To make it easier for you, here’s a full command script to copy-paste directly into your terminal. This will set up both the React frontend and Flask backend, ensuring everything runs smoothly.
+
+
+---
+
+1. Full Setup Script
+
+# Step 1: Create Project Structure
+mkdir messenger-clone
+cd messenger-clone
+
+# Step 2: Initialize React Frontend
+npx create-react-app frontend
+
+# Step 3: Create Backend Folder and Virtual Environment
+mkdir backend && cd backend
+python3 -m venv venv
+source venv/bin/activate
+
+# Step 4: Install Backend Dependencies
+pip install Flask flask-cors psycopg2-binary python-dotenv
+
+# Step 5: Save Requirements
+pip freeze > requirements.txt
+
+# Step 6: Create .env File with Database Configuration
+cat > .env <<EOF
+DATABASE_URL=postgresql://neondb_owner:4piPg2YGLuRy@ep-fragrant-scene-a507b740.us-east-2.aws.neon.tech/neondb?sslmode=require
+FLASK_SECRET_KEY=d9555badcd09ae9bb0d4ecf0efbbc673
+EOF
+
+# Step 7: Create Flask Backend (app.py)
+cat > app.py <<EOF
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+import psycopg2
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+app = Flask(__name__)
+CORS(app)
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
+conn = psycopg2.connect(os.getenv('DATABASE_URL'))
+
+def fetch_contacts():
+    query = """
+        SELECT sender, MAX(time) AS last_time, MAX(text) AS last_message
+        FROM chats
+        GROUP BY sender
+        ORDER BY last_time DESC
+    """
+    with conn.cursor() as cur:
+        cur.execute(query)
+        return [{'name': row[0], 'lastMessage': row[2], 'lastTime': row[1].isoformat()} for row in cur.fetchall()]
+
+def fetch_chat_history(contact):
+    query = """
+        SELECT time, sender, text FROM chats WHERE sender = %s OR sender = 'You' ORDER BY time ASC
+    """
+    with conn.cursor() as cur:
+        cur.execute(query, (contact,))
+        return cur.fetchall()
+
+@app.route('/contacts', methods=['GET'])
+def get_contacts():
+    return jsonify(fetch_contacts())
+
+@app.route('/chat/<contact>', methods=['GET'])
+def get_chat(contact):
+    return jsonify(fetch_chat_history(contact))
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
+EOF
+
+# Step 8: Navigate Back to Root Directory
+cd ..
+
+# Step 9: Install React Frontend Dependencies
+cd frontend
+npm install @mui/material @emotion/react @emotion/styled axios react-router-dom timeago.js
+
+# Step 10: Create React App Files
+mkdir -p src/components
+
+# Create App.js
+cat > src/App.js <<EOF
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ContactList from './components/ContactList';
+import ChatView from './components/ChatView';
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<ContactList />} />
+        <Route path="/chat/:contact" element={<ChatView />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
+EOF
+
+# Create ContactList.js
+cat > src/components/ContactList.js <<EOF
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { List, ListItem, ListItemAvatar, ListItemText, Avatar } from '@mui/material';
+import { Link } from 'react-router-dom';
+
+function ContactList() {
+  const [contacts, setContacts] = useState([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/contacts').then((response) => {
+      setContacts(response.data);
+    });
+  }, []);
+
+  return (
+    <List>
+      {contacts.map((contact) => (
+        <Link key={contact.name} to={`/chat/${contact.name}`} style={{ textDecoration: 'none' }}>
+          <ListItem button>
+            <ListItemAvatar>
+              <Avatar src={`https://robohash.org/${contact.name}?set=set2`} />
+            </ListItemAvatar>
+            <ListItemText
+              primary={contact.name}
+              secondary={new Date(contact.lastTime).toLocaleString()}
+            />
+          </ListItem>
+        </Link>
+      ))}
+    </List>
+  );
+}
+
+export default ContactList;
+EOF
+
+# Create ChatView.js
+cat > src/components/ChatView.js <<EOF
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import axios from 'axios';
+import { List, ListItem, Typography, Box, Button } from '@mui/material';
+import TimeAgo from 'timeago.js';
+
+function ChatView() {
+  const { contact } = useParams();
+  const [messages, setMessages] = useState([]);
+  const timeago = new TimeAgo();
+
+  useEffect(() => {
+    axios.get(\`http://localhost:5000/chat/\${contact}\`).then((response) => {
+      setMessages(response.data);
+    });
+  }, [contact]);
+
+  return (
+    <Box sx={{ width: '100%', maxWidth: 640, margin: 'auto', mt: 4, px: 2 }}>
+      <Box display="flex" alignItems="center" mb={2}>
+        <Link to="/" style={{ textDecoration: 'none' }}>
+          <Button variant="contained" color="primary">Back</Button>
+        </Link>
+        <Typography variant="h6" sx={{ ml: 2 }}>{contact}</Typography>
+      </Box>
+
+      <List>
+        {messages.map((msg, index) => (
+          <ListItem
+            key={index}
+            sx={{
+              display: 'flex',
+              justifyContent: msg.sender === contact ? 'flex-start' : 'flex-end',
+              mb: 1,
+            }}
+          >
+            <Box
+              sx={{
+                bgcolor: msg.sender === contact ? 'grey.300' : 'primary.main',
+                color: msg.sender === contact ? 'black' : 'white',
+                p: 2,
+                borderRadius: 2,
+                maxWidth: '70%',
+              }}
+            >
+              <Typography variant="body1">{msg.text}</Typography>
+              <Typography variant="caption" sx={{ display: 'block', mt: 1 }}>
+                {timeago.format(msg.time)}
+              </Typography>
+            </Box>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
+}
+
+export default ChatView;
+EOF
+
+# Step 11: Start Backend and Frontend
+cd ../backend
+python app.py &  # Start backend
+
+cd ../frontend
+npm start        # Start frontend
+
+
+---
+
+How to Use the Setup Script
+
+1. Copy the entire script above and paste it into your terminal.
+
+
+2. Ensure PostgreSQL is installed and the backend database is ready.
+
+
+3. After the script finishes, navigate to http://localhost:3000 to view your React frontend and http://localhost:5000 to access your Flask backend.
+
+
+
+
+---
+
+This script ensures that:
+
+React and Flask are correctly configured.
+
+Real-time chat data flows seamlessly between the frontend and backend.
+
+All dependencies are installed and ready to go.
+
+
+Let me know if you encounter any issues!
+

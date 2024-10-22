@@ -1,0 +1,232 @@
+# app.py
+from flask import Flask, render_template, jsonify, request
+import pg8000
+from datetime import datetime
+
+app = Flask(__name__)
+
+# Connect to the PostgreSQL database
+conn = pg8000.connect(
+    database='neondb',
+    user='neondb_owner',
+    password='4piPg2YGLuRy',
+    host='ep-fragrant-scene-a507b740.us-east-2.aws.neon.tech',
+    port=5432
+)
+
+def fetch_contacts():
+    """Retrieve contacts with their last message."""
+    query = """
+        SELECT sender, MAX(time) AS last_time, MAX(text) AS last_message
+        FROM chats
+        GROUP BY sender
+        ORDER BY last_time DESC
+    """
+    with conn.cursor() as cur:
+        cur.execute(query)
+        contacts = cur.fetchall()
+    return [
+        {'name': row[0], 'lastMessage': row[2], 'lastTime': row[1].strftime('%Y-%m-%d %H:%M:%S')}
+        for row in contacts
+    ]
+
+def fetch_chat_history(contact):
+    """Retrieve all messages between the user and a contact."""
+    query = """
+        SELECT time, sender, text FROM chats 
+        WHERE sender = %s OR sender = 'You' 
+        ORDER BY time ASC
+    """
+    with conn.cursor() as cur:
+        cur.execute(query, (contact,))
+        return cur.fetchall()
+
+@app.route('/')
+def home():
+    """Render the main page."""
+    return render_template('chat.html')
+
+@app.route('/contacts')
+def get_contacts():
+    """API to fetch all contacts."""
+    return jsonify(fetch_contacts())
+
+@app.route('/chat/<contact>')
+def get_chat(contact):
+    """API to fetch chat history with a specific contact."""
+    return jsonify(fetch_chat_history(contact))
+
+if __name__ == '__main__':
+    app.run(debug=True)<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messenger Clone</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #f0f2f5;
+    }
+
+    .avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background-color: #e4e6eb;
+    }
+
+    .contact-card {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      background-color: white;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+    }
+
+    .contact-card:hover {
+      background-color: #e4e6eb;
+    }
+
+    .contact-info {
+      margin-left: 12px;
+      flex: 1;
+    }
+
+    .chat-bubble {
+      margin: 8px 0;
+      padding: 12px;
+      border-radius: 18px;
+      max-width: 70%;
+    }
+
+    .chat-bubble.sent {
+      background-color: #0084ff;
+      color: white;
+      align-self: flex-end;
+    }
+
+    .chat-bubble.received {
+      background-color: #e4e6eb;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      justify-content: space-around;
+      background-color: white;
+      border-top: 1px solid #ddd;
+      padding: 12px 0;
+    }
+
+    .bottom-nav a {
+      text-align: center;
+      font-size: 14px;
+      color: #606770;
+    }
+
+    .active-nav {
+      color: #0084ff;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body class="h-screen flex flex-col">
+
+  <!-- Header with Search -->
+  <header class="w-full max-w-lg bg-white sticky top-0 p-4 shadow-md flex items-center space-x-4">
+    <input id="search-input" type="text" placeholder="Search..." class="w-full bg-gray-200 p-2 rounded-md focus:outline-none">
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 w-full max-w-lg p-4 overflow-y-auto space-y-4">
+    <ul id="contacts-list" class="space-y-2"></ul>
+
+    <!-- Chat History Section -->
+    <div id="chat-history" class="w-full bg-white rounded-xl shadow-lg absolute inset-0 flex flex-col space-y-4 hidden">
+      <div class="flex items-center space-x-4 p-4">
+        <button onclick="goBack()" class="text-blue-500">Back</button>
+        <h2 id="chat-title" class="text-xl font-semibold"></h2>
+      </div>
+      <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="#" class="active-nav" onclick="showChats()">Chats</a>
+    <a href="#">Calls</a>
+    <a href="#">People</a>
+  </nav>
+
+  <script>
+    // Load contacts on page load
+    window.onload = function () {
+      fetch('/contacts')
+        .then(response => response.json())
+        .then(contacts => {
+          const contactsList = document.getElementById('contacts-list');
+          contactsList.innerHTML = contacts.map(contact => `
+            <li class="contact-card" onclick="loadChat('${contact.name}')">
+              <img src="https://robohash.org/${contact.name}?set=set2" class="avatar">
+              <div class="contact-info">
+                <h3>${contact.name}</h3>
+                <p>${contact.lastMessage}</p>
+              </div>
+            </li>
+          `).join('');
+        });
+
+      document.getElementById('search-input').addEventListener('input', function () {
+        const filter = this.value.toLowerCase();
+        const contacts = document.querySelectorAll('#contacts-list li');
+        contacts.forEach(contact => {
+          const contactName = contact.querySelector('h3').innerText.toLowerCase();
+          contact.style.display = contactName.includes(filter) ? '' : 'none';
+        });
+      });
+    };
+
+    // Load chat history for a contact
+    function loadChat(contact) {
+      fetch(`/chat/${contact}`)
+        .then(response => response.json())
+        .then(messages => {
+          const chatHistory = document.getElementById('chat-history');
+          chatHistory.classList.remove('hidden');
+          document.getElementById('contacts-list').classList.add('hidden');
+          document.getElementById('chat-title').innerText = `Chat with ${contact}`;
+          const messagesDiv = document.getElementById('messages');
+
+          if (messages.length === 0) {
+            messagesDiv.innerHTML = `<p class="text-center text-gray-500">No messages yet.</p>`;
+          } else {
+            messagesDiv.innerHTML = messages.map(msg => `
+              <div class="chat-bubble ${msg[1] === contact ? 'received' : 'sent'}">
+                <strong>${msg[1]}</strong>: ${msg[2]}
+                <small class="block text-xs text-gray-500">${new Date(msg[0]).toLocaleString()}</small>
+              </div>
+            `).join('');
+          }
+        });
+    }
+
+    function goBack() {
+      document.getElementById('chat-history').classList.add('hidden');
+      document.getElementById('contacts-list').classList.remove('hidden');
+    }
+
+    function showChats() {
+      document.getElementById('contacts-list').classList.remove('hidden');
+    }
+  </script>
+
+</body>
+
+</html>
