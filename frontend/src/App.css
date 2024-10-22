@@ -1,0 +1,146 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  background-color: #f0f2f5;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 350px;
+  background-color: white;
+  border-right: 1px solid #e4e6eb;
+  overflow-y: auto;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.contact-list {
+  padding: 10px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #e4e6eb;
+}
+
+.contact-item:hover {
+  background-color: #f2f3f5;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.contact-info {
+  flex-grow: 1;
+}
+
+.contact-info h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.contact-info p {
+  margin: 0;
+  font-size: 14px;
+  color: #65676b;
+}
+
+.timestamp {
+  font-size: 12px;
+  color: #65676b;
+}
+
+.search-bar {
+  padding: 10px;
+  background-color: #f0f2f5;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: 20px;
+  background-color: #e4e6eb;
+  font-size: 14px;
+}
+
+.chat-view {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.messages {
+  margin-top: 20px;
+}
+
+.message {
+  max-width: 70%;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 18px;
+  line-height: 1.4;
+}
+
+.message.sent {
+  background-color: #0084ff;
+  color: white;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.message.received {
+  background-color: #e4e6eb;
+  color: black;
+}
+
+.load-more {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #e4e6eb;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.load-more:hover {
+  background-color: #d8dadf;
+}
+
+.chat-statistics {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-message {
+  text-align: center;
+  padding: 50px;
+  background-color: white;
+  border-radius: 8px;
+}
