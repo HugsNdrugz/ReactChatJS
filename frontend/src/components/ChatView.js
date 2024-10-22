@@ -38,11 +38,6 @@ const ChatView = ({ contact }) => {
         onChange={handleSearch}
         className="search-input"
       />
-      {hasMore && (
-        <button onClick={() => fetchMessages()} className="load-more">
-          Load More
-        </button>
-      )}
       <div className="messages">
         {messages.map(message => (
           <div key={message.id} className={`message ${message.sender_id === contact.id ? 'received' : 'sent'}`}>
@@ -51,6 +46,11 @@ const ChatView = ({ contact }) => {
           </div>
         ))}
       </div>
+      {hasMore && (
+        <button onClick={() => fetchMessages()} className="load-more">
+          Load More
+        </button>
+      )}
     </div>
   );
 };

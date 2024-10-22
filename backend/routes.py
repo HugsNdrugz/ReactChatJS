@@ -32,7 +32,7 @@ def get_chat_history(contact_id):
     search_query = request.args.get('search', '')
 
     messages = Message.query.filter(
-        (Message.sender_id == contact_id) | (Message.receiver_id == contact_id),
+        ((Message.sender_id == contact_id) | (Message.receiver_id == contact_id)) &
         Message.content.ilike(f'%{search_query}%')
     ).order_by(Message.timestamp.desc()) \
      .paginate(page=page, per_page=per_page, error_out=False)
